@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from selenium import webdriver
 from time import sleep 
 import glob
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db import connect_to_db
@@ -26,7 +26,7 @@ sleep(5)
 driver.close()
 
 downloads_dir_path = os.environ.get("DOWNLOADS_DIR_PATH")
-path_to_file = glob.glob(f"{downloads_dir_path}*.csv")
+path_to_file = glob.glob(f"{downloads_dir_path}/*.csv")
 latest_file = max(path_to_file, key=os.path.getctime)
 
 df = pd.read_csv(
@@ -72,22 +72,27 @@ query = insert_initial + values + insert_end
 engine = connect_to_db()
 engine.execute(query)
 
-
 # POPULATING ASSET_PORTFOLIO TABLE 
 
 # Importing asset and portfolio tables from PostgreSQL 
-asset_from_sql = pd.read_sql('asset', engine, columns=['id','symbol'])
-portfolio_from_sql = pd.read_sql('portfolio', engine)
+symbol_tuple = tuple(asset["Código"])
+asset_from_sql = pd.read_sql(
+    f"SELECT id, symbol FROM asset WHERE symbol IN {symbol_tuple };",
+    engine)
+ibov_portfolio_id = pd.read_sql(
+    "SELECT id FROM portfolio WHERE name='IBOV';",
+    engine)
+
 
 # Creating 'asset_id' and 'portfolio_id' columns on asset_portfolio dataframe
 asset_portfolio = asset_from_sql.copy()[["id"]]
 asset_portfolio.rename(columns={"id": "asset_id"}, inplace=True)
-asset_portfolio["portfolio_id"] = int(portfolio_from_sql.loc[portfolio_from_sql["name"] == "IBOV", 'id'])
+asset_portfolio["portfolio_id"] = int(ibov_portfolio_id["id"])
 
 # Creating the 'weight' column
 participation = df.loc[:, ["Código", "Part. (%)"]].copy()
 participation.rename(columns={"Código": "symbol",  "Part. (%)": "weight"}, inplace=True)
-participation["weight"] = participation["weight"] / 100
+participation["weight"] = round(participation["weight"] / 100, 4)
 # Merging participation and asset_from_sql ON symbol   
 # and isolating only the columns 'asset_id' and 'weight'
 participation = asset_from_sql.merge(participation, how='inner', on='symbol')
@@ -105,7 +110,7 @@ insert_init = """
 """
 
 values = ",".join(["('{}', '{}', '{}')"
-        .format(int(row["asset_id"]), int(row["portfolio_id"]), round(row["weight"], 7)) 
+        .format(int(row["asset_id"]), int(row["portfolio_id"]), row["weight"]) 
     for asset_id, row in asset_portfolio.iterrows()
 ])
 

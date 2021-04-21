@@ -1,7 +1,7 @@
 import pandas as pd
 from sqlalchemy import create_engine
 import os
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 
 def connect_to_db():
     load_dotenv()
