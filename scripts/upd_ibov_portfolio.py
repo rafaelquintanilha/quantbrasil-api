@@ -53,7 +53,7 @@ insert_initial = """
 
 values = ",".join([
     "('{}', '{}', '{}', '{}')"
-        .format(row.Código, row.Ação, row.Tipo, row.YF_Código) 
+        .format(row["Código"], row["Ação"], row["Tipo"], row["YF_Código"]) 
     for symbol, row in asset.iterrows()
 ])
 
@@ -77,7 +77,7 @@ engine.execute(query)
 # Importing asset and portfolio tables from PostgreSQL 
 symbol_tuple = tuple(asset["Código"])
 asset_from_sql = pd.read_sql(
-    f"SELECT id, symbol FROM asset WHERE symbol IN {symbol_tuple };",
+    f"SELECT id, symbol FROM asset WHERE symbol IN {symbol_tuple};",
     engine)
 ibov_portfolio_id = pd.read_sql(
     "SELECT id FROM portfolio WHERE name='IBOV';",
