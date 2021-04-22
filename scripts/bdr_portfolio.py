@@ -8,6 +8,18 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db import connect_to_db
 
+# Creating the BDR portfolio in the portfolio table 
+engine = connect_to_db()
+
+insert_portfolio_query = """
+INSERT INTO portfolio (name) 
+VALUES ('BDR') 
+ON CONFLICT (name) 
+DO UPDATE SET name = EXCLUDED.name;
+"""
+# Executing the query
+engine.execute(insert_portfolio_query)
+
 # Parsing html BDR table into a dataframe
 url = "https://investnews.com.br/financas/veja-a-lista-completa-dos-bdrs-disponiveis-para-pessoas-fisicas-na-b3/"
 

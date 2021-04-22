@@ -19,6 +19,6 @@ To connect to the database it is necessary to set an .env file with the followin
 ## Running update_db.py script 
 
 It is necessary to set two different .env variables in order to run the update_db.py script:
-- one with the chromedriver path;
-- and another with the downloads directory path. 
+- one with the chromedriver path: DRIVER_EXECUTABLE_PATH;
+- and another with the downloads directory path: DOWNLOADS_DIR_PATH. 
 

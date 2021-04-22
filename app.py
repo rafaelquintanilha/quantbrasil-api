@@ -6,7 +6,7 @@ from utils import (
     bb,
     get_beta,
     get_beta_info,
-    get_ibov_tickers,
+    get_tickers,
     position_relative_to_bands,
     rsi,
     strategy_points,
@@ -70,7 +70,7 @@ def backtest_ifr2(ticker):
 
 @app.route("/ifr2")
 def api():
-    tickers = get_ibov_tickers()
+    tickers = get_tickers('IBOV')
     start, end = get_interval(365)
     df = get_data(
         tickers=tickers, columns=["Open", "High", "Adj Close"], start=start, end=end
@@ -147,7 +147,7 @@ def stochastic_calculation(ticker):
 @app.route("/stochastic")
 def all_stochastic():
 
-    tickers = get_ibov_tickers()
+    tickers = get_tickers('IBOV')
     start, end = get_interval(120)
     df = get_data(
         tickers=tickers, columns=["High", "Low", "Adj Close"], start=start, end=end
@@ -160,7 +160,7 @@ def all_stochastic():
 
 @app.route("/static")
 def indicators():
-    tickers = get_ibov_tickers()
+    tickers = get_tickers('IBOV')
 
     start, end = get_interval(365)
     df = get_data(

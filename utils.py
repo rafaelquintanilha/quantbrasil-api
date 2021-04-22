@@ -146,17 +146,17 @@ def strategy_test(all_profits, total_capital):
     }
 
 
-def get_ibov_tickers():
+def get_tickers(portfolio_name):
     engine = connect_to_db()
     tickers = pd.read_sql(
-        """
+        f"""
         SELECT asset.yf_symbol 
         FROM asset 
         INNER JOIN asset_portfolio 
             ON asset.id = asset_portfolio.asset_id 
         INNER JOIN portfolio 
             ON portfolio.id = asset_portfolio.portfolio_id 
-        WHERE portfolio.name = 'IBOV';
+        WHERE portfolio.name = '{portfolio_name}';
         """,
         engine)
     tickers = list(tickers["yf_symbol"])

@@ -25,9 +25,7 @@ portfolio_query = """CREATE TABLE portfolio (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR (100) NOT NULL UNIQUE
 );"""
-insert_portfolio_query = "INSERT INTO portfolio (name) VALUES ('IBOV'), ('BDR');"
 engine.execute(portfolio_query)
-engine.execute(insert_portfolio_query)
 
 # Creating asset_portfolio table 
 asset_portfolio_query = """CREATE TABLE asset_portfolio ( 

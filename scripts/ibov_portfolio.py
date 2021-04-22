@@ -10,6 +10,18 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db import connect_to_db
 
+# Creating the IBOV portfolio in the portfolio table 
+engine = connect_to_db()
+
+insert_portfolio_query = """
+INSERT INTO portfolio (name) 
+VALUES ('IBOV') 
+ON CONFLICT (name) 
+DO UPDATE SET name = EXCLUDED.name;
+"""
+# Executing the query
+engine.execute(insert_portfolio_query)
+
 # Web scraping from B3 website 
 load_dotenv()
 
@@ -69,7 +81,6 @@ insert_end = """
 query = insert_initial + values + insert_end
 
 # Executing the query 
-engine = connect_to_db()
 engine.execute(query)
 
 # POPULATING ASSET_PORTFOLIO TABLE 
@@ -123,7 +134,7 @@ insert_end = """
 """
 
 query = insert_init + values + insert_end
-
+# Executing the query 
 engine.execute(query)
 
 print("Script Successfully Executed!")
