@@ -1,16 +1,15 @@
 import pandas as pd
-import numpy as np
-import sqlalchemy
-from sqlalchemy import create_engine
 from selenium import webdriver
-from time import sleep 
+
+from time import sleep
 import glob
 from dotenv import load_dotenv
 import os, sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db import connect_to_db
 
-# Creating the IBOV portfolio in the portfolio table 
+# Creating the IBOV portfolio in the portfolio table
 engine = connect_to_db()
 
 insert_portfolio_query = """
@@ -22,12 +21,11 @@ DO UPDATE SET name = EXCLUDED.name;
 # Executing the query
 engine.execute(insert_portfolio_query)
 
-# Web scraping from B3 website 
+# Web scraping from B3 website
 load_dotenv()
 
 executable_path = os.environ.get("DRIVER_EXECUTABLE_PATH")
-
-url = "https://sistemaswebb3-listados.b3.com.br/indexPage/day/IBOV?language=pt-br" 
+url = "https://sistemaswebb3-listados.b3.com.br/indexPage/day/IBOV?language=pt-br"
 driver = webdriver.Chrome(executable_path)
 driver.get(url)
 sleep(5)
@@ -50,12 +48,12 @@ df = pd.read_csv(
     thousands=".",
     decimal=",",
     header=1,
-    index_col=False
-    ) 
+    index_col=False,
+)
 
-# POPULATING ASSET TABLE  
+# POPULATING ASSET TABLE
 asset = df.loc[:, ["Código", "Ação", "Tipo"]].copy()
-asset['YF_Código'] = asset['Código'] + '.SA'
+asset["YF_Código"] = asset["Código"] + ".SA"
 
 # Writing the SQL query to populate asset table
 insert_initial = """
@@ -63,11 +61,14 @@ insert_initial = """
     VALUES
 """
 
-values = ",".join([
-    "('{}', '{}', '{}', '{}')"
-        .format(row["Código"], row["Ação"], row["Tipo"], row["YF_Código"]) 
-    for symbol, row in asset.iterrows()
-])
+values = ",".join(
+    [
+        "('{}', '{}', '{}', '{}')".format(
+            row["Código"], row["Ação"], row["Tipo"], row["YF_Código"]
+        )
+        for symbol, row in asset.iterrows()
+    ]
+)
 
 insert_end = """
     ON CONFLICT (symbol) DO UPDATE 
@@ -80,19 +81,17 @@ insert_end = """
 
 query = insert_initial + values + insert_end
 
-# Executing the query 
+# Executing the query
 engine.execute(query)
 
-# POPULATING ASSET_PORTFOLIO TABLE 
+# POPULATING ASSET_PORTFOLIO TABLE
 
-# Importing asset and portfolio tables from PostgreSQL 
+# Importing asset and portfolio tables from PostgreSQL
 symbol_tuple = tuple(asset["Código"])
 asset_from_sql = pd.read_sql(
-    f"SELECT id, symbol FROM asset WHERE symbol IN {symbol_tuple};",
-    engine)
-ibov_portfolio_id = pd.read_sql(
-    "SELECT id FROM portfolio WHERE name='IBOV';",
-    engine)
+    f"SELECT id, symbol FROM asset WHERE symbol IN {symbol_tuple};", engine
+)
+ibov_portfolio_id = pd.read_sql("SELECT id FROM portfolio WHERE name='IBOV';", engine)
 
 
 # Creating 'asset_id' and 'portfolio_id' columns on asset_portfolio dataframe
@@ -102,17 +101,17 @@ asset_portfolio["portfolio_id"] = int(ibov_portfolio_id["id"])
 
 # Creating the 'weight' column
 participation = df.loc[:, ["Código", "Part. (%)"]].copy()
-participation.rename(columns={"Código": "symbol",  "Part. (%)": "weight"}, inplace=True)
+participation.rename(columns={"Código": "symbol", "Part. (%)": "weight"}, inplace=True)
 participation["weight"] = round(participation["weight"] / 100, 4)
-# Merging participation and asset_from_sql ON symbol   
+# Merging participation and asset_from_sql ON symbol
 # and isolating only the columns 'asset_id' and 'weight'
-participation = asset_from_sql.merge(participation, how='inner', on='symbol')
+participation = asset_from_sql.merge(participation, how="inner", on="symbol")
 participation.drop(columns=["symbol"], inplace=True)
 participation.rename(columns={"id": "asset_id"}, inplace=True)
 
 # Merging participation and asset_portfolio dataframes ON 'asset_id' column
-# in order to get the three columns together and complete asset_portfolio table 
-asset_portfolio = asset_portfolio.merge(participation, how='inner', on='asset_id')
+# in order to get the three columns together and complete asset_portfolio table
+asset_portfolio = asset_portfolio.merge(participation, how="inner", on="asset_id")
 
 # Writing the SQL query to populate asset_portfolio table
 insert_init = """
@@ -120,10 +119,14 @@ insert_init = """
     VALUES
 """
 
-values = ",".join(["('{}', '{}', '{}')"
-        .format(int(row["asset_id"]), int(row["portfolio_id"]), row["weight"]) 
-    for asset_id, row in asset_portfolio.iterrows()
-])
+values = ",".join(
+    [
+        "('{}', '{}', '{}')".format(
+            int(row["asset_id"]), int(row["portfolio_id"]), row["weight"]
+        )
+        for asset_id, row in asset_portfolio.iterrows()
+    ]
+)
 
 insert_end = """
     ON CONFLICT (asset_id, portfolio_id) DO UPDATE 
@@ -134,7 +137,7 @@ insert_end = """
 """
 
 query = insert_init + values + insert_end
-# Executing the query 
+# Executing the query
 engine.execute(query)
 
 print("Script Successfully Executed!")

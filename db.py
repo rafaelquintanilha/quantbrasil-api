@@ -1,7 +1,7 @@
-import pandas as pd
 from sqlalchemy import create_engine
 import os
 from dotenv import load_dotenv
+
 
 def connect_to_db():
     load_dotenv()
@@ -13,12 +13,9 @@ def connect_to_db():
     db_name = os.environ.get("DB_NAME")
 
     address = "postgresql://{}:{}@{}:{}/{}".format(
-        user_name,
-        password,
-        endpoint,
-        port,
-        db_name)
+        user_name, password, endpoint, port, db_name
+    )
 
     engine = create_engine(address)
-    
+
     return engine
