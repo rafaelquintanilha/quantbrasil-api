@@ -16,8 +16,10 @@ def connect_to_db():
     print(port, "port")
 
     address = "postgresql://{}:{}@{}:{}/{}".format(
-        user_name, password, endpoint, port, db_name
+        user_name, password, endpoint, int(port), db_name
     )
+
+    print(address)
 
     engine = create_engine(address)
 
