@@ -12,14 +12,9 @@ def connect_to_db():
     port = os.environ.get("DB_PORT")
     db_name = os.environ.get("DB_NAME")
 
-    print(db_name, "db_name")
-    print(port, "port")
-
     address = "postgresql://{}:{}@{}:{}/{}".format(
         user_name, password, endpoint, int(port), db_name
     )
-
-    print(address)
 
     engine = create_engine(address)
 
