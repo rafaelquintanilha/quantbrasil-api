@@ -3,8 +3,14 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db import connect_to_db
 
-# Path to database
+# Create database connection
 engine = connect_to_db()
+
+# Dropping all tables in cascade to be able to create them again
+drop_query = """DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+"""
+engine.execute(drop_query)
 
 # Creating asset table
 asset_query = """CREATE TABLE asset (
@@ -32,5 +38,28 @@ asset_portfolio_query = """CREATE TABLE asset_portfolio (
     UNIQUE (asset_id, portfolio_id)
     );"""
 engine.execute(asset_portfolio_query)
+
+# Creating timeframe table 
+timeframe_query = """CREATE TABLE timeframe (
+    id BIGSERIAL PRIMARY KEY, 
+    name VARCHAR (10) NOT NULL UNIQUE
+);"""
+engine.execute(timeframe_query)
+
+# Creating price table 
+price_query = """CREATE TABLE price (
+    id BIGSERIAL,
+    asset_id INTEGER NOT NULL REFERENCES asset(id),
+    timeframe_id INTEGER NOT NULL REFERENCES timeframe(id),
+    datetime TIMESTAMP,
+    open DOUBLE PRECISION,
+    high DOUBLE PRECISION,
+    low DOUBLE PRECISION,
+    close DOUBLE PRECISION,
+    volume INTEGER,
+    PRIMARY KEY (id, datetime),
+    UNIQUE (asset_id, timeframe_id, datetime)
+);"""
+engine.execute(price_query)
 
 print("Script Successfully Executed!")
