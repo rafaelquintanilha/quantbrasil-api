@@ -22,3 +22,6 @@ It is necessary to set two different .env variables in order to run the update_d
 - one with the chromedriver path: DRIVER_EXECUTABLE_PATH;
 - and another with the downloads directory path: DOWNLOADS_DIR_PATH. 
 
+## Running run_all_scripts.py script 
+It is necessary yo set an .env variables with the path to the .csv files from MetaTrader. 
+

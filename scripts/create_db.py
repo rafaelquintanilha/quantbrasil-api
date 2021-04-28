@@ -41,8 +41,8 @@ engine.execute(asset_portfolio_query)
 
 # Creating timeframe table 
 timeframe_query = """CREATE TABLE timeframe (
-    id BIGSERIAL PRIMARY KEY, 
-    name VARCHAR (10) NOT NULL UNIQUE
+    id VARCHAR (5) PRIMARY KEY, 
+    description VARCHAR (15) NOT NULL
 );"""
 engine.execute(timeframe_query)
 
@@ -50,7 +50,7 @@ engine.execute(timeframe_query)
 price_query = """CREATE TABLE price (
     id BIGSERIAL,
     asset_id INTEGER NOT NULL REFERENCES asset(id),
-    timeframe_id INTEGER NOT NULL REFERENCES timeframe(id),
+    timeframe_id VARCHAR (5) NOT NULL REFERENCES timeframe(id),
     datetime TIMESTAMP,
     open DOUBLE PRECISION,
     high DOUBLE PRECISION,
