@@ -3,7 +3,9 @@ import glob
 from dotenv import load_dotenv
 import os, sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 from db import connect_to_db
 
 # USAGE: $ python populate_price_table.py <PATH_TO_FILES>
@@ -17,25 +19,27 @@ engine = connect_to_db()
 timeframe_dirs = os.listdir(f"{path}")
 
 for timeframe in timeframe_dirs:
-    # Removes '.DS_Store' in case the script is running in a mac computer 
-    if timeframe == '.DS_Store':
-        timeframe_dirs.remove('.DS_Store')
-        
+    # Removes '.DS_Store' in case the script is running in a mac computer
+    if timeframe == ".DS_Store":
+        timeframe_dirs.remove(".DS_Store")
 
-    for timeframe in timeframe_dirs: 
+    for timeframe in timeframe_dirs:
         os.chdir(f"{path}/{timeframe}")
         assets_files = glob.glob("*.csv")
         symbol_list = [s[:-4] for s in assets_files]
-    
-        # Looping through all the symbols and adding it to the price table 
+
+        # Looping through all the symbols and adding it to the price table
         for symbol in symbol_list:
-            df = pd.read_csv(f"{path}/{timeframe}/{symbol}.csv")[["time","open", "high", "low", "close", "real_volume"]]
-            df.rename(columns={"time": "datetime", "real_volume": "volume"}, inplace=True)
-            
+            df = pd.read_csv(f"{path}/{timeframe}/{symbol}.csv")[
+                ["time", "open", "high", "low", "close", "real_volume"]
+            ]
+            df.rename(
+                columns={"time": "datetime", "real_volume": "volume"}, inplace=True
+            )
+
             # Importing asset_id and timeframe_id from tables in PostgreSQL
             asset_id = pd.read_sql(
-                f"SELECT id FROM asset WHERE symbol = '{symbol}';",
-                engine
+                f"SELECT id FROM asset WHERE symbol = '{symbol}';", engine
             )
 
             # Creating the columns
@@ -51,15 +55,15 @@ for timeframe in timeframe_dirs:
             values = ",".join(
                 [
                     "('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(
-                        row["datetime"], 
-                        row["open"], 
-                        row["high"], 
-                        row["low"], 
+                        row["datetime"],
+                        row["open"],
+                        row["high"],
+                        row["low"],
                         row["close"],
-                        row["volume"], 
-                        row["asset_id"], 
-                        row["timeframe_id"]
-                        )
+                        row["volume"],
+                        row["asset_id"],
+                        row["timeframe_id"],
+                    )
                     for datetime, row in df.iterrows()
                 ]
             )
