@@ -1,18 +1,20 @@
 import os, sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 from db import connect_to_db
 
-# Path to database
+# Create database connection
 engine = connect_to_db()
 
 # Creating asset table
 asset_query = """CREATE TABLE asset (
     id BIGSERIAL PRIMARY KEY,
     symbol VARCHAR (15) NOT NULL UNIQUE,
-    name VARCHAR (100) NOT NULL,
-    type VARCHAR (10),
-    yf_symbol VARCHAR (15) NOT NULL
+    name VARCHAR (100) NULL,
+    type VARCHAR (10) NULL,
+    yf_symbol VARCHAR (15) NULL
 );"""
 engine.execute(asset_query)
 
