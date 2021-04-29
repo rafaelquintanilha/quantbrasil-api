@@ -12,9 +12,9 @@ engine = connect_to_db()
 asset_query = """CREATE TABLE asset (
     id BIGSERIAL PRIMARY KEY,
     symbol VARCHAR (15) NOT NULL UNIQUE,
-    name VARCHAR (100) NOT NULL,
-    type VARCHAR (10),
-    yf_symbol VARCHAR (15) NOT NULL
+    name VARCHAR (100) NULL,
+    type VARCHAR (10) NULL,
+    yf_symbol VARCHAR (15) NULL
 );"""
 engine.execute(asset_query)
 

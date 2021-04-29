@@ -41,11 +41,12 @@ for timeframe in timeframe_dirs:
             asset_id = pd.read_sql(
                 f"SELECT id FROM asset WHERE symbol = '{symbol}';", engine
             )
-            if len(asset_id) == 0: 
-                query = f"""INSERT INTO asset (symbol, name, yf_symbol) 
-                VALUES ('{symbol}', '{symbol}', '{symbol}.SA');"""
+            if len(asset_id) == 0:
+                query = f"INSERT INTO asset (symbol) VALUES ('{symbol}');"
                 engine.execute(query)
-                asset_id = pd.read_sql(f"SELECT id FROM asset WHERE symbol = '{symbol}';", engine)
+                asset_id = pd.read_sql(
+                    f"SELECT id FROM asset WHERE symbol = '{symbol}';", engine
+                )
 
             # Creating the columns
             df["asset_id"] = int(asset_id["id"])
