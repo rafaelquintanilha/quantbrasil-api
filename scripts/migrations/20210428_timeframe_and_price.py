@@ -36,7 +36,7 @@ price_query = """CREATE TABLE price (
     id BIGSERIAL,
     asset_id INTEGER NOT NULL REFERENCES asset(id),
     timeframe_id VARCHAR (5) NOT NULL REFERENCES timeframe(id),
-    datetime TIMESTAMP,
+    datetime TIMESTAMP NOT NULL,
     open DOUBLE PRECISION,
     high DOUBLE PRECISION,
     low DOUBLE PRECISION,
