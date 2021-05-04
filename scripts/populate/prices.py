@@ -68,7 +68,7 @@ for timeframe in timeframe_dirs:
                         row["close"],
                         row["volume"],
                         row["asset_id"],
-                        row["timeframe_id"],
+                        row["timeframe_id"]
                     )
                     for datetime, row in df.iterrows()
                 ]
